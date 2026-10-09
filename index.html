@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080911">
+<meta name="description" content="COSMIC — a universe of research, poetry, thinking and stories.">
+<title>COSMIC | Beyond Ordinary</title>
+
+<style>
+:root {
+  --bg: #080911;
+  --text: #f5f0e8;
+  --muted: #a6a6ba;
+  --gold: #dfc28b;
+  --purple: #9584d9;
+  --line: rgba(255,255,255,.13);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 85px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  opacity: .12;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.17'/%3E%3C/svg%3E");
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+::selection { background: var(--gold); color: #101018; }
+
+.loader {
+  position: fixed; inset: 0; z-index: 100;
+  background: #080911;
+  display: grid; place-content: center;
+  text-align: center;
+  transition: opacity .8s, visibility .8s;
+}
+.loader.hide { opacity: 0; visibility: hidden; }
+.loader-mark {
+  font-family: Georgia, serif; font-size: 2.4rem;
+  letter-spacing: .45em; color: var(--gold);
+  animation: pulse 1.5s infinite alternate;
+}
+.loader p { font-size: .65rem; letter-spacing: .35em; color: var(--muted); }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  padding: 19px 6%;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: background .4s, border-color .4s;
+}
+nav.scrolled {
+  background: rgba(8,9,17,.86);
+  backdrop-filter: blur(16px);
+  border-color: var(--line);
+}
+.logo { font-size: 1.05rem; letter-spacing: .32em; font-weight: 600; }
+.logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 27px; }
+.nav-links a {
+  font-size: .7rem; letter-spacing: .09em;
+  color: #c5c3d0; transition: color .3s;
+}
+.nav-links a:hover { color: var(--gold); }
+.menu-button {
+  display: none; background: none; color: white;
+  border: 1px solid var(--line); padding: 8px 12px;
+}
+
+.hero {
+  min-height: 100svh;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(87,67,138,.25), transparent 45%),
+    linear-gradient(180deg,#080911 0%,#101021 58%,#090a12 100%);
+}
+#stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.aurora {
+  position: absolute; width: 70vw; height: 55vw;
+  max-height: 600px; max-width: 900px;
+  border-radius: 50%; filter: blur(85px);
+  opacity: .15; pointer-events: none;
+  background: #7560bd;
+  animation: aurora 12s ease-in-out infinite alternate;
+}
+.moon {
+  position: absolute; width: clamp(115px,19vw,240px);
+  aspect-ratio: 1; border-radius: 50%;
+  top: 18%; left: 50%; transform: translateX(-50%);
+  background: radial-gradient(circle at 35% 30%,#f4ead5,#c6b9da 42%,#756b9c 75%,#302c4c);
+  box-shadow: 0 0 45px #b7a6ff22, 0 0 120px #8e7ad322;
+  animation: moonfloat 8s ease-in-out infinite;
+}
+.moon::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-radial-gradient(ellipse at 40% 40%,transparent 0 17px,#786d9a14 18px 20px);
+}
+.hero-copy {
+  position: relative; z-index: 3; text-align: center;
+  width: min(900px,92%); padding-top: 110px;
+}
+.eyebrow {
+  color: var(--gold); font-size: .67rem;
+  letter-spacing: .34em; text-transform: uppercase;
+}
+.hero h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.4rem,11vw,8.8rem);
+  line-height: .91; letter-spacing: -.065em;
+  font-weight: 400; margin: 27px 0;
+  text-shadow: 0 5px 45px #080911;
+}
+.hero h1 em { font-weight: 400; color: var(--gold); }
+.hero-desc {
+  max-width: 480px; margin: 0 auto;
+  color: #c3c0d2; font-size: clamp(.9rem,2vw,1.05rem);
+  line-height: 1.9;
+}
+.actions {
+  display: flex; justify-content: center; gap: 13px;
+  flex-wrap: wrap; margin-top: 34px;
+}
+.btn {
+  padding: 14px 21px; font-size: .72rem;
+  letter-spacing: .09em; transition: .3s;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-primary { color: #111018; background: var(--gold); }
+.btn-primary:hover { background: #f4dfb4; transform: translateY(-3px); }
+.btn-outline { border: 1px solid #ffffff40; }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.scroll-cue {
+  position: absolute; bottom: 25px; left: 50%;
+  transform: translateX(-50%); text-align: center;
+  font-size: .58rem; letter-spacing: .25em; color: #aaa7ba;
+}
+.scroll-cue span {
+  display: block; height: 34px; width: 1px;
+  margin: 12px auto 0;
+  background: linear-gradient(var(--gold),transparent);
+  animation: lineflow 2s infinite;
+}
+
+/* Illustrated mountain horizon */
+.landscape {
+  position: absolute; z-index: 1; bottom: 0; left: 0;
+  width: 100%; height: 34%; pointer-events: none;
+}
+.landscape svg { width: 100%; height: 100%; display: block; }
+.landscape .ridge { animation: drift 16s ease-in-out infinite alternate; }
+.landscape .ridge2 { animation: drift 22s ease-in-out infinite alternate-reverse; }
+
+section { position: relative; padding: 115px 7%; }
+.section-label {
+  font-size: .66rem; color: var(--gold);
+  letter-spacing: .28em; text-transform: uppercase;
+}
+.section-title {
+  font-family: Georgia, serif; font-weight: 400;
+  font-size: clamp(2.4rem,6vw,5rem);
+  letter-spacing: -.04em; line-height: 1.05;
+  margin: 20px 0;
+}
+.section-title em { color: var(--gold); font-weight: 400; }
+.intro {
+  background: linear-gradient(180deg,#090a12,#10101c 55%,#090a12);
+}
+.intro-grid {
+  display: grid; grid-template-columns: 1.1fr .9fr;
+  gap: 9%; align-items: center; max-width: 1150px; margin: auto;
+}
+.intro-copy p {
+  color: var(--muted); line-height: 2;
+  font-size: .96rem; max-width: 520px;
+}
+.orbit {
+  min-height: 350px; position: relative;
+  display: grid; place-items: center;
+}
+.orbit-ring {
+  position: absolute; width: min(80%,330px);
+  aspect-ratio: 1; border: 1px solid #d9c8ed30;
+  border-radius: 50%; animation: spin 35s linear infinite;
+}
+.orbit-ring::before, .orbit-ring::after {
+  content: ""; position: absolute; border-radius: 50%;
+  width: 8px; height: 8px; background: var(--gold);
+  box-shadow: 0 0 20px var(--gold);
+}
+.orbit-ring::before { top: 12%; left: 18%; }
+.orbit-ring::after { bottom: 17%; right: 10%; background: var(--purple); }
+.orbit-ring.r2 {
+  width: 65%; transform: rotateX(65deg) rotate(-25deg);
+  border-color: #9884d344; animation-duration: 24s;
+}
+.core {
+  width: 105px; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%,#fff1cf,#b6a1dc 35%,#4d3c75 75%);
+  box-shadow: 0 0 50px #9983dc44,0 0 130px #9983dc20;
+}
+.orbit-word {
+  position: absolute; bottom: 5%; font-size: .65rem;
+  letter-spacing: .32em; color: var(--muted);
+}
+
+.work { background: #090a12; }
+.work-head { max-width: 1150px; margin: 0 auto 45px; }
+.work-head p { color: var(--muted); line-height: 1.8; max-width: 520px; }
+.cards {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 18px; max-width: 1150px; margin: auto;
+}
+.card {
+  position: relative; overflow: hidden; min-height: 300px;
+  padding: 34px; border: 1px solid var(--line);
+  background: linear-gradient(145deg,#171726,#0d0d17 70%);
+  transition: transform .45s,border-color .45s;
+  isolation: isolate;
+}
+.card:hover { transform: translateY(-6px); border-color: #dfc28b88; }
+.card::before {
+  content: ""; position: absolute; width: 230px; height: 230px;
+  border-radius: 50%; top: -85px; right: -55px; z-index: -1;
+  background: radial-gradient(circle,#a28bd62c,transparent 70%);
+  transition: transform .6s;
+}
+.card:hover::before { transform: scale(1.4); }
+.card-number { color: var(--gold); font-size: .68rem; letter-spacing: .2em; }
+.card h3 {
+  font: 400 clamp(1.9rem,4vw,2.7rem) Georgia,serif;
+  margin: 35px 0 12px;
+}
+.card p { color: var(--muted); line-height: 1.8; max-width: 390px; font-size: .9rem; }
+.card-link {
+  display: inline-block; margin-top: 18px;
+  font-size: .68rem; letter-spacing: .15em; color: var(--gold);
+}
+.card-link span { display: inline-block; transition: transform .3s; }
+.card-link:hover span { transform: translateX(6px); }
+
+.quote {
+  text-align: center; overflow: hidden;
+  background: radial-gradient(ellipse at center,#24203a,#0b0b13 70%);
+  padding-top: 125px; padding-bottom: 125px;
+}
+.quote-mark { color: var(--gold); font: 5rem Georgia,serif; line-height: 1; }
+.quote blockquote {
+  max-width: 850px; margin: 12px auto 28px;
+  font: 400 clamp(1.8rem,5vw,3.8rem)/1.3 Georgia,serif;
+}
+.quote blockquote em { color: var(--gold); }
+.quote small { color: var(--muted); letter-spacing: .2em; font-size: .65rem; }
+
+.contact {
+  text-align: center;
+  background: linear-gradient(180deg,#0b0b13,#11101d);
+}
+.contact p { color: var(--muted); line-height: 1.9; }
+.contact .actions { margin-top: 28px; }
+footer {
+  padding: 25px 7%; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; gap: 15px;
+  color: #89879c; font-size: .68rem; letter-spacing: .08em;
+}
+footer span { color: var(--gold); }
+
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .85s ease, transform .85s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes pulse { from {opacity:.45} to {opacity:1} }
+@keyframes aurora {
+  from { transform: translate(-12%,4%) scale(.9); }
+  to { transform: translate(12%,-5%) scale(1.1); }
+}
+@keyframes moonfloat {
+  0%,100% { margin-top: 0; }
+  50% { margin-top: -12px; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes lineflow {
+  0% { transform: scaleY(.5); transform-origin: top; opacity:.4; }
+  50% { transform: scaleY(1); transform-origin: top; opacity:1; }
+  100% { transform: scaleY(.4); transform-origin: top; opacity:.4; }
+}
+@keyframes drift { from { transform: translateX(-1.5%); } to { transform: translateX(1.5%); } }
+
+@media (min-width: 1200px) {
+  section { padding-left: max(7%, calc((100% - 1250px)/2)); padding-right: max(7%, calc((100% - 1250px)/2)); }
+}
+@media (max-width: 700px) {
+  nav { padding: 16px 5%; }
+  .menu-button { display: block; }
+  .nav-links {
+    display: none; position: absolute; top: 63px; left: 0; right: 0;
+    padding: 22px 5%; flex-direction: column; gap: 22px;
+    background: rgba(8,9,17,.97); border-bottom: 1px solid var(--line);
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: .8rem; }
+  .moon { top: 20%; }
+  .hero-copy { padding-top: 85px; }
+  .hero h1 { font-size: clamp(3.2rem,15vw,6rem); }
+  .hero-desc { max-width: 340px; }
+  .landscape { height: 24%; }
+  section { padding: 82px 6%; }
+  .intro-grid { grid-template-columns: 1fr; gap: 10px; }
+  .orbit { min-height: 270px; }
+  .cards { grid-template-columns: 1fr; }
+  .card { min-height: 265px; padding: 27px; }
+  .quote { padding-top: 95px; padding-bottom: 95px; }
+  footer { flex-direction: column; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+
+<body>
+<div class="loader" id="loader" aria-label="Loading COSMIC">
+  <div class="loader-mark">C.</div>
+  <p>ENTERING THE UNIVERSE</p>
+</div>
+
+<nav id="nav">
+  <a class="logo" href="#home">COS<span>M</span>IC.</a>
+  <button class="menu-button" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <div class="nav-links" id="navLinks">
+    <a href="#home">HOME</a>
+    <a href="#about">ABOUT</a>
+    <a href="#work">EXPLORE</a>
+    <a href="#contact">CONNECT</a>
+  </div>
+</nav>
+
+<main>
+<section class="hero" id="home">
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="aurora"></div>
+  <div class="moon"></div>
+
+  <div class="hero-copy">
+    <div class="eyebrow reveal">A PERSONAL UNIVERSE · EST. IN CURIOSITY</div>
+    <h1 class="reveal">Beyond<br><em>Ordinary.</em></h1>
+    <p class="hero-desc reveal">
+      Somewhere between the questions we ask,
+      the words we write, and the worlds we imagine,
+      a universe begins.
+    </p>
+    <div class="actions reveal">
+      <a class="btn btn-primary" href="#work">EXPLORE MY WORLD ↗</a>
+      <a class="btn btn-outline" href="#about">THE STORY BEHIND IT</a>
+    </div>
+  </div>
+
+  <div class="landscape" aria-hidden="true">
+    <svg viewBox="0 0 1440 430" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="mountain" x1="0" y1="0" x2="0" y2="1">
+          <stop stop-color="#555071"/><stop offset="1" stop-color="#141422"/>
+        </linearGradient>
+        <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+          <stop stop-color="#171729"/><stop offset="1" stop-color="#080911"/>
+        </linearGradient>
+      </defs>
+      <path fill="#25233b" opacity=".55"
+        d="M0 235L120 145 210 212 350 80 470 202 605 112 730 220 860 95 1010 205 1160 115 1280 205 1440 120V430H0Z"/>
+      <path fill="url(#mountain)" class="ridge"
+        d="M0 300L150 195 260 255 440 115 570 260 730 140 900 260 1080 150 1250 260 1370 185 1440 225V430H0Z"/>
+      <path fill="url(#ground)" class="ridge2"
+        d="M0 320L190 260 330 310 510 220 680 325 870 235 1040 315 1230 230 1440 310V430H0Z"/>
+      <path fill="#090a12" d="M0 365Q200 315 390 365T780 360T1160 350T1440 365V430H0Z"/>
+      <g fill="#dfc28b" opacity=".7">
+        <circle cx="250" cy="330" r="1.5"/><circle cx="360" cy="345" r="1"/>
+        <circle cx="1010" cy="340" r="1.5"/><circle cx="1170" cy="326" r="1"/>
+      </g>
+    </svg>
+  </div>
+  <div class="scroll-cue">SCROLL TO DISCOVER<span></span></div>
+</section>
+
+<section class="intro" id="about">
+  <div class="intro-grid">
+    <div class="intro-copy reveal">
+      <div class="section-label">01 / THE BEGINNING</div>
+      <h2 class="section-title">A mind that<br>looks <em>beyond.</em></h2>
+      <p>
+        Welcome to Cosmic, a space for curiosity, imagination,
+        and ideas that refuse to remain ordinary.
+      </p>
+      <p>
+        I explore the questions hidden beneath everyday life,
+        express the things that are difficult to say, and create
+        stories that invite us to see reality differently.
+      </p>
+      <p>
+        This is not just a portfolio. It is a growing record
+        of what I discover, what I feel, and what I hope to create.
+      </p>
+      <a class="btn btn-outline" href="#work">DISCOVER THE COLLECTION ↗</a>
+    </div>
+    <div class="orbit reveal" aria-label="Animated cosmic orbit illustration">
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring r2"></div>
+      <div class="core"></div>
+      <div class="orbit-word">CURIOSITY · CREATION · CONSCIOUSNESS</div>
+    </div>
+  </div>
+</section>
+
+<section class="work" id="work">
+  <div class="work-head reveal">
+    <div class="section-label">02 / THE COLLECTION</div>
+    <h2 class="section-title">Four doors.<br><em>Infinite worlds.</em></h2>
+    <p>Every interest opens a different window into the universe.
+       Step into the worlds that make this space my own.</p>
+  </div>
+
+  <div class="cards">
+    <article class="card reveal">
+      <div class="card-number">01 — KNOWLEDGE</div>
+      <h3>Research</h3>
+      <p>Questions, discoveries, technology, ancient knowledge,
+         and ideas worth examining more deeply.</p>
+      <a class="card-link" href="research.html">ENTER THE ARCHIVE <span>↗</span></a>
+    </article>
+
+    <article class="card reveal">
+      <div class="card-number">02 — EXPRESSION</div>
+      <h3>Poetry</h3>
+      <p>Words for the feelings that remain unspoken.
+         Fragments of memory, longing, and being human.</p>
+      <a class="card-link" href="poetry.html">READ BETWEEN THE LINES <span>↗</span></a>
+    </article>
+
+    <article class="card reveal">
+      <div class="card-number">03 — PERSPECTIVE</div>
+      <h3>Thinking</h3>
+      <p>Philosophy, reality, consciousness, and the questions
+         that begin where easy answers end.</p>
+      <a class="card-link" href="thinking.html">QUESTION THE KNOWN <span>↗</span></a>
+    </article>
+
+    <article class="card reveal">
+      <div class="card-number">04 — IMAGINATION</div>
+      <h3>Stories</h3>
+      <p>Fictional worlds, mysteries, unforgettable characters,
+         and stories that leave something behind.</p>
+      <a class="card-link" href="stories.html">OPEN A NEW WORLD <span>↗</span></a>
+    </article>
+  </div>
+</section>
+
+<section class="quote">
+  <div class="quote-mark reveal">“</div>
+  <blockquote class="reveal">
+    The universe is vast, but the worlds within us
+    may be <em>just as infinite.</em>
+  </blockquote>
+  <small class="reveal">A THOUGHT FROM COSMIC</small>
+</section>
+
+<section class="contact" id="contact">
+  <div class="section-label reveal">03 / BEYOND THIS PAGE</div>
+  <h2 class="section-title reveal">Every universe<br>begins with a <em>thought.</em></h2>
+  <p class="reveal">Thank you for stepping into mine.</p>
+  <div class="actions reveal">
+    <!-- Replace the email below with your preferred public contact. -->
+    <a class="btn btn-primary" href="mailto:your-email@example.com">LET'S CONNECT ↗</a>
+    <a class="btn btn-outline" href="#home">RETURN TO THE STARS ↑</a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div>© <span id="year"></span> COSMIC. MADE WITH CURIOSITY.</div>
+  <div>RESEARCH · POETRY · THINKING · STORIES</div>
+</footer>
+
+<script>
+(() => {
+  const loader = document.getElementById('loader');
+  window.addEventListener('load', () => {
+    setTimeout(() => loader.classList.add('hide'), 450);
+  });
+
+  const nav = document.getElementById('nav');
+  const updateNav = () => nav.classList.toggle('scrolled', window.scrollY > 30);
+  window.addEventListener('scroll', updateNav, { passive: true });
+  updateNav();
+
+  const menuButton = document.getElementById('menuButton');
+  const navLinks = document.getElementById('navLinks');
+  menuButton.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    menuButton.setAttribute('aria-expanded', String(isOpen));
+    menuButton.textContent = isOpen ? '✕' : '☰';
+  });
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      menuButton.setAttribute('aria-expanded', 'false');
+      menuButton.textContent = '☰';
+    });
+  });
+
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Lightweight animated star field. No images or external libraries.
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let stars = [];
+  let width = 0, height = 0, frame = 0;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = Math.min(170, Math.floor(width * height / 6500));
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 1.3 + .25,
+      phase: Math.random() * Math.PI * 2,
+      speed: Math.random() * .018 + .004
+    }));
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    stars.forEach(s => {
+      const alpha = reducedMotion ? .65 :
+        .25 + (Math.sin(frame * s.speed + s.phase) + 1) * .35;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(235,226,255,${alpha})`;
+      ctx.fill();
+    });
+    if (!reducedMotion) frame++;
+  }
+
+  function animate() {
+    draw();
+    if (!reducedMotion) requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+  if (!reducedMotion) requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
